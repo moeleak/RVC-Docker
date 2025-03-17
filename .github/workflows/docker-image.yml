@@ -1,0 +1,32 @@
+name: Docker Image CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Build the Docker image
+      run: docker build . --file Dockerfile --tag rvc:$(date +%s)
+    - name: Save the Docker image
+      run: docker save rvc:$(date +%s) -o RVC.tar
+    - name: Commit and push version update
+      uses: EndBug/add-and-commit@v9
+      with:
+        add: '.version'
+        message: 'TEST'
+        author_name: 'github-actions'
+        author_email: 'github-actions@github.com'
+    - name: Upload Docker image tar file as artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: docker-image
+        path: RVC.tar
