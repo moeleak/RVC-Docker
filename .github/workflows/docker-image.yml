@@ -7,17 +7,16 @@ on:
     branches: [ "main" ]
 
 jobs:
-
   build:
-
     runs-on: ubuntu-latest
-
     steps:
     - uses: actions/checkout@v4
+    - name: Set Docker image tag
+      run: echo "IMAGE_TAG=$(date +%s)" >> $GITHUB_ENV
     - name: Build the Docker image
-      run: docker build . --file Dockerfile --tag rvc:$(date +%s)
+      run: docker build . --file Dockerfile --tag rvc:${{ env.IMAGE_TAG }}
     - name: Save the Docker image
-      run: docker save rvc:$(date +%s) -o RVC.tar
+      run: docker save rvc:${{ env.IMAGE_TAG }} -o RVC.tar
     - name: Commit and push version update
       uses: EndBug/add-and-commit@v9
       with:
@@ -30,3 +29,4 @@ jobs:
       with:
         name: docker-image
         path: RVC.tar
+
